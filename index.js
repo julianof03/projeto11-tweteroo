@@ -1,51 +1,51 @@
 import express from 'express';
-import cors from 'cors'
+import cors from 'cors';
 
-const server = express();
-server.use(cors());
-server.use(express.json());
-const corpo = [];
-let usereq;
-let avatareq;
-const tweetCorpo = [];
-let tweetuser;
-let tweet;
+const app = express();
 
-server.post('/sign-up', (req, res) =>{
-    usereq = req.body.username;
-    avatareq = req.body.avatar;
-    const novoCorpo = {
-        username: avatareq,
-        avatar: avatareq
-    };
+app.use(express.json());
+app.use(cors());
 
-    corpo.push(novoCorpo);
+const user = {
+    username: '',
+    avatar: ''
+};
+const tweets = [];
+
+app.post("/sign-up", (req, res) => {
+
+    const { username, avatar } = req.body;
+    user.username = username;
+    user.avatar = avatar;
     res.send("OK");
-  });
+})
 
-  server.post('/tweets', (req, res) =>{
-    tweetuser = req.body.username;
-    tweetreq = req.body.tweet;
-    const novotweetCorpo = {
-      username: tweetuser,
-      tweet: tweet
-    };
+app.post("/tweets", (req, res) => {
 
-    tweetCorpo.push(novotweetCorpo);
-    res.send("OK");
-  });
-  server.get('/tweets', (req, res) =>{
-    tweetuser = req.body.username;
-    tweetreq = req.body.tweet;
-    const novotweetCorpo = {
-      username: tweetuser,
-      avatar: avatareq,
-      tweet: tweetreq
-    };
+    const username = req.headers.user;
+    const { tweet } = req.body;
+    tweets.push({
+        username: username,
+        avatar: user.avatar,
+        tweet: tweet
+    });
+    res.sendStatus(201);
+})
 
-    tweetCorpo.push(novotweetCorpo);
-    res.send(tweetCorpo);
-  });
+app.get("/tweets", (req, res) => {
+    const lastTweets = [];
+    if (tweets.length > 0) {
+        for (let i = tweets.length - 1; i >= (tweets.length - 10) && i > 0; i--) {
+            lastTweets.push(tweets[i]);
+        }
+    }
+    console.log(tweets.length);
+    res.send(lastTweets);
+})
 
 
-server.listen(5000, () => console.log('Listening on port 5000'));
+
+
+
+
+app.listen(5000, () => console.log('Listening on port 5000'));
